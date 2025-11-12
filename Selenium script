@@ -1,0 +1,24 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time, json
+
+driver = webdriver.Chrome()
+driver.get("https://chromewebstore.google.com/category/extensions")
+
+# Wait for any extension link ("/detail/") to load dynamically
+try:
+    WebDriverWait(driver, 40).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a[href*='/detail/']"))
+    )
+    elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='/detail/']")
+    print("Extensions found:", len(elements))
+except Exception as e:
+    print("Still could not locate elements -", e)
+
+extension_urls = [el.get_attribute("href") for el in elements]
+with open("extension_urls.json", "w", encoding="utf-8") as f:
+    json.dump(extension_urls, f, indent=2)
+
+driver.quit()
